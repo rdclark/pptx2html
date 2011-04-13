@@ -1,3 +1,8 @@
 .DS_Store
 *~
 target
+
+# Don't include IntelliJ IDEA files
+.idea
+pptx2html.iml
+

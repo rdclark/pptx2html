@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <!-- =======================================================================
@@ -52,12 +53,12 @@
 
     <dependencies>
 
-		<dependency>
-			<groupId>org.antlr</groupId>
-			<artifactId>antlr3-maven-plugin</artifactId>
-			<version>3.3</version>
-		</dependency>
-		<!--
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr3-maven-plugin</artifactId>
+            <version>3.3</version>
+        </dependency>
+        <!--
           We need to have the ANTLR runtime jar when running and compiling.
         -->
         <dependency>
@@ -67,9 +68,17 @@
             <scope>compile</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>5.10</version>
+            <classifier>jdk15</classifier>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
-  <!--
+    <!--
 
     Tell Maven which other artifacts we need in order to
     build with the ANTLR Tool. Here we also make the default
@@ -100,48 +109,39 @@
 
             </plugin>
 
-
-            <!--
-              Strictly speaking, we did not need to generate this for you from
-              the prototype, but we use it to illustrate how you can get
-              the JDK 6 Java compiler to accept 1.5 or 1.6 targeted source code
-              but produce class files that are compatible with JRE 1.4. As
-              Michael Caine might say, "Not a lot of people know that!"
-              -->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.6</source>
-                    <target>jsr14</target>
-                    <sourceDirectory>src</sourceDirectory>
+                    <source>1.5</source>
+                    <target>1.5</target>
                 </configuration>
             </plugin>
 
             <plugin>
-                
+
                 <!--
 
-                    Build an uber-jar that is packaged with all the other dependencies,
-                    such as the antlr-runtime and so on. This will be useful
-                    for developers, who then do not need to download anything else or
-                    remember that they need antlr.jar in their CLASSPATH and so
-                    on.
+                  Build an uber-jar that is packaged with all the other dependencies,
+                  such as the antlr-runtime and so on. This will be useful
+                  for developers, who then do not need to download anything else or
+                  remember that they need antlr.jar in their CLASSPATH and so
+                  on.
 
-                    You can delete this plugin of course and you will then
-                    get a jar file with only the code generated and included
-                    directly in this project. With this plugin though you will
-                    find that when you build with:
+                  You can delete this plugin of course and you will then
+                  get a jar file with only the code generated and included
+                  directly in this project. With this plugin though you will
+                  find that when you build with:
 
-                       mvn install
+                     mvn install
 
-                    There will be an executable jar generated. You can run this
-                    as:
+                  There will be an executable jar generated. You can run this
+                  as:
 
-                      java -jar pptx2html-1.0d1-jar-with-dependencies.jar demosource.dmo
+                    java -jar pptx2html-1.0d1-jar-with-dependencies.jar demosource.dmo
 
-                    assuming you have a file called demosource.dmo to attempt a parse.
+                  assuming you have a file called demosource.dmo to attempt a parse.
 
-                  -->
+                -->
                 <artifactId>maven-assembly-plugin</artifactId>
 
                 <configuration>
