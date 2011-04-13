@@ -48,7 +48,10 @@ public class StaxTokenSource implements TokenSource {
         } catch (XMLStreamException e) {
             // do nothing, for now
         }
-        return (tokens.isEmpty()) ? null : tokens.remove();
+        if (tokens.isEmpty())
+            return new ClassicToken(Token.EOF_TOKEN);
+        Token result = tokens.remove();
+        return result;
     }
 
     public String getSourceName() {
