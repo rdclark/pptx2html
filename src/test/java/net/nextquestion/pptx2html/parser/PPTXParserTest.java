@@ -17,6 +17,7 @@ import java.util.List;
 
 import static net.nextquestion.pptx2html.parser.PPTXParser.*;
 import static org.antlr.hamcrest.HasTypedChild.hasChild;
+import static org.antlr.hamcrest.HasTypedDescendant.hasDescendant;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -60,6 +61,20 @@ public class PPTXParserTest {
         assertThat(child(descendant(tree, PLACEHOLDER_TYPE), TYPE_ATTR).getText(), equalTo("ctrTitle"));
     }
 
+    @Test
+    public void shapesCanContainText() throws Exception {
+        Tree tree = parse("src/test/resources/TitleSlide.xml");
+        assertThat(descendant(tree, SHAPE), hasDescendant(TEXT_BODY));
+        assertThat(descendant(tree, TEXT_BODY), hasDescendant(PARAGRAPH));
+    }
+
+    @Test
+    public void paragraphsCanContainTextRuns() throws Exception {
+        Tree tree = parse("src/test/resources/TitleSlide.xml");
+        List<Tree> shapes = descendants(tree, SHAPE);
+        Tree paragraph = descendant(shapes.get(0), PARAGRAPH);
+        assertThat(paragraph, hasDescendant(TEXT_RUN));
+    }
 
     /**
      * @param fileName

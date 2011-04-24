@@ -8,6 +8,7 @@ tokens {
 	SLIDE; SLIDE_CONTAINER; 
 	SHAPE_TREE; SHAPE;
 	PLACEHOLDER_TYPE;
+	TEXT_BODY; PARAGRAPH; TEXT_RUN;
 }
 
 @header {
@@ -29,8 +30,8 @@ shapeTree
 	->	^(SHAPE_TREE shape+)
 	;
 
-shape	:	SP_START placeholderType? SP_END
-	->	^(SHAPE placeholderType?)
+shape	:	SP_START placeholderType? textBody? SP_END
+	->	^(SHAPE placeholderType? textBody?)
 	;
 	
 placeholderType 
@@ -38,6 +39,19 @@ placeholderType
 		TYPE_ATTR
 		PH_END NVPR_END NVSPPR_END
 	->	^(PLACEHOLDER_TYPE TYPE_ATTR)
+	;
+
+textBody:	TXBODY_START paragraph+ TXBODY_END
+	->	^(TEXT_BODY paragraph+)
+	;
+
+paragraph	
+	:	P_START textRun* P_END
+	->	^(PARAGRAPH textRun*)
+	;
+
+textRun	:	R_START T_START TEXT* T_END R_END
+	->	^(TEXT_RUN TEXT*)
 	;
 
 
@@ -59,3 +73,13 @@ PH_END		: '/PH';
 
 TYPE_ATTR	: 'TYPE';
 
+TXBODY_START	: 'TXBODY';
+TXBODY_END	: '/TXBODY';
+P_START		: 'P';
+P_END		: '/P';
+R_START		: 'R';
+R_END		: '/R';
+T_START		: 'T';
+T_END		: '/T';
+
+TEXT		: 'TEXT';
