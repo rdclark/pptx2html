@@ -5,7 +5,7 @@ options {
 }
 
 tokens {
-	SLIDE; SLIDE_CONTAINER;
+	SLIDE; SLIDE_CONTAINER; SHAPE_TREE;
 }
 
 @header {
@@ -18,12 +18,20 @@ slide
 	;
 
 slideContainer
-:	CSLD_START CSLD_END
-->	^(SLIDE_CONTAINER)
-;
+	:	CSLD_START shapeTree CSLD_END
+	->	^(SLIDE_CONTAINER shapeTree)
+	;
+
+shapeTree
+	:	SPTREE_START SPTREE_END
+	->	^(SHAPE_TREE)
+	;
+
 
 CSLD_START : 'CSLD';
 CSLD_END   : '/CSLD';
 SLD_START : 'SLD';
 SLD_END   : '/SLD';
+SPTREE_START : 'SPTREE';
+SPTREE_END   : '/SPTREE';
 

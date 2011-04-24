@@ -1,15 +1,13 @@
 package net.nextquestion.pptx2html.parser;
 
+import net.nextquestion.pptx2html.adaptors.StaxTokenSource;
+import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.TokenStream;
-import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.Tree;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
 
 import javax.xml.stream.XMLStreamException;
 import java.io.FileReader;
@@ -17,14 +15,10 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 
-import net.nextquestion.pptx2html.parser.PPTXParser;
-import net.nextquestion.pptx2html.adaptors.StaxTokenSource;
-
-import static net.nextquestion.pptx2html.parser.PPTXParser.*;
-
+import static net.nextquestion.pptx2html.parser.PPTXParser.SLIDE_CONTAINER;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 
 /**
@@ -47,9 +41,16 @@ public class PPTXParserTest {
     }
 
     @Test
-    public void declarationSupportsBuiltinType() throws Exception {
+    public void slideHasSlideContainer() throws Exception {
         Tree tree = parse("src/test/resources/TitleSlide.xml");
-        assertThat(tree.toStringTree(), is(equalTo("(SLIDE SLIDE_CONTAINER)")));
+        assertThat(nodeMatching(SLIDE_CONTAINER), notNullValue());
+        assertThat(nodeMatching(SLIDE_CONTAINER).toStringTree(), containsString("SLIDE_CONTAINER"));
+    }
+
+    @Test
+    public void slideContainerHasShapeTree() throws Exception {
+        Tree tree = parse("src/test/resources/TitleSlide.xml");
+        assertThat(nodeMatching(SLIDE_CONTAINER).toStringTree(), startsWith("(SLIDE_CONTAINER SHAPE_TREE"));
     }
 
 
