@@ -44,13 +44,20 @@ public class PPTXParserTest {
     @Test
     public void slideContainerHasShapeTree() throws Exception {
         Tree tree = parse("src/test/resources/TitleSlide.xml");
-        assertThat(descendant(tree, SLIDE_CONTAINER), hasChild(SHAPE_TREE));
+        assertThat(child(tree, SLIDE_CONTAINER), hasChild(SHAPE_TREE));
     }
 
     @Test
     public void shapeTreeContainsShapes() throws Exception {
         Tree tree = parse("src/test/resources/TitleSlide.xml");
-        assertThat(descendants(descendant(tree, SHAPE_TREE), SHAPE).size(), equalTo(2));
+        assertThat(children(descendant(tree, SHAPE_TREE), SHAPE).size(), equalTo(2));
+    }
+
+    @Test
+    public void shapesCanHaveAType() throws Exception {
+        Tree tree = parse("src/test/resources/TitleSlide.xml");
+        assertThat(descendant(tree, SHAPE), hasChild(PLACEHOLDER_TYPE));
+        assertThat(child(descendant(tree, PLACEHOLDER_TYPE), TYPE_ATTR).getText(), equalTo("ctrTitle"));
     }
 
 
@@ -85,31 +92,27 @@ public class PPTXParserTest {
     }
 
     public static Tree descendant(Tree source, int nodeType) {
-        List<Tree> subtrees = new ArrayList<Tree>();
-        extract(source, nodeType, true, subtrees);
+        List<Tree> subtrees = extract(source, nodeType, true, null);
         return subtrees.isEmpty() ? null : subtrees.get(0);
     }
 
     private List<Tree> children(Tree source, int nodeType) {
-        List<Tree> subtrees = new ArrayList<Tree>();
-        extract(source, nodeType, false, subtrees);
-        return subtrees;
+        return extract(source, nodeType, false, null);
     }
 
     private List<Tree> descendants(Tree source, int nodeType) {
-        List<Tree> subtrees = new ArrayList<Tree>();
-        extract(source, nodeType, true, subtrees);
-        return subtrees;
+        return extract(source, nodeType, true, null);
     }
 
     private static List<Tree> extract(Tree parent, int nodeType, boolean recursive, List<Tree> result) {
+        if (result == null) result = new ArrayList<Tree>();
         int numChildren = parent.getChildCount();
         for (int i = 0; i < numChildren; i++) {
             Tree child = parent.getChild(i);
             if (child.getType() == nodeType) {
                 result.add(child);
             } else if (recursive && child.getChildCount() > 0) {
-                extract(child, nodeType, false, result);
+                extract(child, nodeType, recursive, result);
             }
         }
         return result;
