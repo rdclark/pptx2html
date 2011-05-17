@@ -20,6 +20,7 @@ import static org.antlr.hamcrest.HasTypedChild.hasChild;
 import static org.antlr.hamcrest.HasTypedDescendant.hasDescendant;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
 
 
 /**
@@ -74,6 +75,16 @@ public class PPTXParserTest {
         List<Tree> shapes = descendants(tree, SHAPE);
         Tree paragraph = descendant(shapes.get(0), PARAGRAPH);
         assertThat(paragraph, hasDescendant(TEXT_RUN));
+    }
+
+    @Test
+    public void textRunBodyContainsText() throws Exception {
+        Tree tree = parse("src/test/resources/TitleSlide.xml");
+        List<Tree> shapes = descendants(tree, SHAPE);
+        Tree paragraph = descendant(shapes.get(0), PARAGRAPH);
+        List<Tree> textRuns = descendants(paragraph, TEXT_RUN);
+        assertThat(textRuns.size(), greaterThan((Integer) 0));
+        assertThat(textRuns.get(0).getChild(0).getText(), equalTo("Test Slide Title"));
     }
 
     /**
