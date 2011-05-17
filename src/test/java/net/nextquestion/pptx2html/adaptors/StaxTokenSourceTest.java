@@ -1,7 +1,7 @@
 package net.nextquestion.pptx2html.adaptors;
 
 import org.antlr.runtime.Token;
-import org.testng.annotations.Test;
+import org.junit.Test;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
@@ -13,7 +13,6 @@ import java.io.StringReader;
  * Date: 4/12/11
  * Time: 22:10
  */
-@Test
 public class StaxTokenSourceTest {
 
     private static final String TOKEN_DEFINITIONS = "TEXT=1\nA_START=2\nA_END=3\nHREF_ATTR=4\nTARGET_ATTR=5\n";

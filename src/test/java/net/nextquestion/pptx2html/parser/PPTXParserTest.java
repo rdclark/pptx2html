@@ -6,7 +6,7 @@ import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.TokenStream;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.Tree;
-import org.testng.annotations.Test;
+import org.junit.Test;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.FileReader;
