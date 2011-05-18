@@ -55,16 +55,6 @@ public abstract class AbstractParserTest {
         return result;
     }
 
-    /**
-     * @param fileName
-     * @throws java.io.IOException
-     * @throws javax.xml.stream.XMLStreamException
-     *
-     * @throws org.antlr.runtime.RecognitionException
-     *
-     */
-    protected abstract Tree parse(String fileName) throws IOException, XMLStreamException, RecognitionException;
-
     protected List<Tree> children(Tree source, int nodeType) {
         return extract(source, nodeType, false, null);
     }

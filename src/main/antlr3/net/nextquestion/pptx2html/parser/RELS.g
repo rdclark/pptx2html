@@ -1,26 +1,30 @@
 grammar RELS;
 
-options {
-	output=AST;
-}
-
 tokens {
 	RELATIONSHIPS; RELATIONSHIP;
 }
 
 @header {
 package net.nextquestion.pptx2html.parser;
+
+import net.nextquestion.pptx2html.model.Relationship;
+import java.util.Map;
+import java.util.HashMap;
 }
 
 
-relationships
-	:	RELATIONSHIPS_START relationship+ RELATIONSHIPS_END
-	->	^(RELATIONSHIPS relationship+)
+relationships returns [Map relationshipMap]
+@init {
+	relationshipMap = new HashMap<String, Relationship>();
+}
+	:	RELATIONSHIPS_START 
+			(r=relationship { $relationshipMap.put(r.getRelID(), r); })+ 
+		RELATIONSHIPS_END
 	;
 
-relationship
-	:	RELATIONSHIP_START ID_ATTR TARGET_ATTR TYPE_ATTR RELATIONSHIP_END
-	->	^(RELATIONSHIP ID_ATTR TYPE_ATTR TARGET_ATTR)
+relationship returns [Relationship r]
+	:	RELATIONSHIP_START id=ID_ATTR target=TARGET_ATTR rtype=TYPE_ATTR RELATIONSHIP_END
+		{ $r = new Relationship(id, target, rtype); }
 	;
 
 RELATIONSHIP_START:	'RELATIONSHIP';

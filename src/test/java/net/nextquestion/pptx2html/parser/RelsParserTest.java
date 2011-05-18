@@ -1,18 +1,19 @@
 package net.nextquestion.pptx2html.parser;
 
+import net.nextquestion.pptx2html.model.Relationship;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.TokenStream;
-import org.antlr.runtime.tree.CommonTree;
-import org.antlr.runtime.tree.Tree;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
+import java.util.Map;
 
 import static net.nextquestion.pptx2html.parser.RELSParser.*;
 import static org.antlr.hamcrest.HasTypedChild.hasChild;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
 
 /**
@@ -23,38 +24,32 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 public class RelsParserTest extends AbstractParserTest {
 
-    private Tree tree;
+    private Map map;
+    private Relationship relationship;
 
     @Before
     public void parseTestFile() throws IOException, XMLStreamException, RecognitionException {
-        tree = parse("src/test/resources/slide3.xml.rels");
+        map = parseRelationships("src/test/resources/slide3.xml.rels");
+        if (map != null && map.containsKey("rId1"))
+            relationship = (Relationship) map.get("rId1");
     }
 
     @Test
     public void containsRelationshipElements() throws Exception {
-        assertThat(tree, hasChild(RELATIONSHIP));
+        assertThat(map.isEmpty(), equalTo(false));
     }
 
     @Test
-    public void relationshipHasTarget() throws Exception {
-        assertThat(child(tree, RELATIONSHIP), hasChild(TARGET_ATTR));
+    public void relationshipHasContents() throws Exception {
+        assertThat(relationship.getRelTarget(), equalTo("foo"));
+        assertThat(relationship.getRelType(), equalTo("foo"));
+        assertThat(relationship.getRelID(), equalTo("foo"));
     }
 
-    @Test
-    public void relationshipHasType() throws Exception {
-        assertThat(child(tree, RELATIONSHIP), hasChild(TYPE_ATTR));
-    }
-
-    @Test
-    public void relationshipHasId() throws Exception {
-        assertThat(child(tree, RELATIONSHIP), hasChild(ID_ATTR));
-    }
-
-    @Override
-    protected Tree parse(String fileName) throws IOException, XMLStreamException, RecognitionException {
+    protected Map parseRelationships(String fileName) throws IOException, XMLStreamException, RecognitionException {
         TokenStream tokens = getTokenStream(fileName, "target/generated-sources/antlr3/RELS.tokens");
         RELSParser parser = new RELSParser(tokens);
-        return (CommonTree) parser.relationships().getTree();
+        return parser.relationships();
     }
 
 }

@@ -83,7 +83,6 @@ public class PPTXParserTest extends AbstractParserTest {
         assertThat(imageTree, hasDescendant(PICTURE));
     }
 
-    @Override
     protected Tree parse(String fileName) throws IOException, XMLStreamException, RecognitionException {
         TokenStream tokens = getTokenStream(fileName, "target/generated-sources/antlr3/PPTX.tokens");
         PPTXParser parser = new PPTXParser(tokens);
