@@ -1,18 +1,14 @@
 package net.nextquestion.pptx2html.parser;
 
-import net.nextquestion.pptx2html.adaptors.StaxTokenSource;
-import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.TokenStream;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.Tree;
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.xml.stream.XMLStreamException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
-import java.util.ArrayList;
 import java.util.List;
 
 import static net.nextquestion.pptx2html.parser.PPTXParser.*;
@@ -31,50 +27,50 @@ import static org.hamcrest.Matchers.greaterThan;
  */
 public class PPTXParserTest extends AbstractParserTest {
 
+    private Tree titleSlideTree;
+
+    @Before
+    public void parseTitleSlide() throws IOException, XMLStreamException, RecognitionException {
+        titleSlideTree = parse("src/test/resources/TitleSlide.xml");
+    }
+
     @Test
     public void slideHasSlideContainer() throws Exception {
-        Tree tree = parse("src/test/resources/TitleSlide.xml");
-        assertThat(tree, hasChild(SLIDE_CONTAINER));
+        assertThat(titleSlideTree, hasChild(SLIDE_CONTAINER));
     }
 
     @Test
     public void slideContainerHasShapeTree() throws Exception {
-        Tree tree = parse("src/test/resources/TitleSlide.xml");
-        assertThat(child(tree, SLIDE_CONTAINER), hasChild(SHAPE_TREE));
+        assertThat(child(titleSlideTree, SLIDE_CONTAINER), hasChild(SHAPE_TREE));
     }
 
     @Test
     public void shapeTreeContainsShapes() throws Exception {
-        Tree tree = parse("src/test/resources/TitleSlide.xml");
-        assertThat(children(descendant(tree, SHAPE_TREE), SHAPE).size(), equalTo(2));
+        assertThat(children(descendant(titleSlideTree, SHAPE_TREE), SHAPE).size(), equalTo(2));
     }
 
     @Test
     public void shapesCanHaveAType() throws Exception {
-        Tree tree = parse("src/test/resources/TitleSlide.xml");
-        assertThat(descendant(tree, SHAPE), hasChild(PLACEHOLDER_TYPE));
-        assertThat(child(descendant(tree, PLACEHOLDER_TYPE), TYPE_ATTR).getText(), equalTo("ctrTitle"));
+        assertThat(descendant(titleSlideTree, SHAPE), hasChild(NVPROPS));
+        assertThat(child(descendant(titleSlideTree, NVPROPS), TYPE_ATTR).getText(), equalTo("ctrTitle"));
     }
 
     @Test
     public void shapesCanContainText() throws Exception {
-        Tree tree = parse("src/test/resources/TitleSlide.xml");
-        assertThat(descendant(tree, SHAPE), hasDescendant(TEXT_BODY));
-        assertThat(descendant(tree, TEXT_BODY), hasDescendant(PARAGRAPH));
+        assertThat(descendant(titleSlideTree, SHAPE), hasDescendant(TEXT_BODY));
+        assertThat(descendant(titleSlideTree, TEXT_BODY), hasDescendant(PARAGRAPH));
     }
 
     @Test
     public void paragraphsCanContainTextRuns() throws Exception {
-        Tree tree = parse("src/test/resources/TitleSlide.xml");
-        List<Tree> shapes = descendants(tree, SHAPE);
+        List<Tree> shapes = descendants(titleSlideTree, SHAPE);
         Tree paragraph = descendant(shapes.get(0), PARAGRAPH);
         assertThat(paragraph, hasDescendant(TEXT_RUN));
     }
 
     @Test
     public void textRunBodyContainsText() throws Exception {
-        Tree tree = parse("src/test/resources/TitleSlide.xml");
-        List<Tree> shapes = descendants(tree, SHAPE);
+        List<Tree> shapes = descendants(titleSlideTree, SHAPE);
         Tree paragraph = descendant(shapes.get(0), PARAGRAPH);
         List<Tree> textRuns = descendants(paragraph, TEXT_RUN);
         assertThat(textRuns.size(), greaterThan((Integer) 0));
@@ -83,8 +79,8 @@ public class PPTXParserTest extends AbstractParserTest {
 
     @Test
     public void imageSlideContainsPictureElement() throws Exception {
-        Tree tree = parse("src/test/resources/ImageBodySlide.xml");
-        assertThat(tree, hasDescendant(PICTURE));
+        Tree imageTree = parse("src/test/resources/ImageBodySlide.xml");
+        assertThat(imageTree, hasDescendant(PICTURE));
     }
 
     @Override
