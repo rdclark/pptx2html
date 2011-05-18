@@ -87,6 +87,12 @@ public class PPTXParserTest {
         assertThat(textRuns.get(0).getChild(0).getText(), equalTo("Test Slide Title"));
     }
 
+    @Test
+    public void imageSlideContainsPictureElement() throws Exception {
+        Tree tree = parse("src/test/resources/ImageBodySlide.xml");
+        assertThat(tree, hasDescendant(PICTURE));
+    }
+
     /**
      * @param fileName
      * @throws java.io.IOException

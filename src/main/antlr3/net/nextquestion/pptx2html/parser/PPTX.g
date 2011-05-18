@@ -9,6 +9,7 @@ tokens {
 	SHAPE_TREE; SHAPE;
 	PLACEHOLDER_TYPE;
 	TEXT_BODY; PARAGRAPH; TEXT_RUN;
+	PICTURE; BLIP_REF;
 }
 
 @header {
@@ -26,9 +27,14 @@ slideContainer
 	;
 
 shapeTree
-	:	SPTREE_START (NVPR_START NVPR_END)? shape+ SPTREE_END
-	->	^(SHAPE_TREE shape+)
+	:	SPTREE_START (NVPR_START NVPR_END)? shapeTreeContent* SPTREE_END
+	->	^(SHAPE_TREE shapeTreeContent*)
 	;
+
+shapeTreeContent
+	:	picture | shape
+	;
+	
 
 shape	:	SP_START placeholderType? textBody? SP_END
 	->	^(SHAPE placeholderType? textBody?)
@@ -54,7 +60,17 @@ textRun	:	R_START T_START TEXT* T_END R_END
 	->	^(TEXT_RUN TEXT*)
 	;
 
+picture	:	PIC_START blip PIC_END
+	->	^(PICTURE blip)
+	;
 
+blip	:	BLIP_START EMBED_ATTR BLIP_END
+	->	^(BLIP_REF EMBED_ATTR)
+	;
+	
+
+BLIP_START 	: 'BLIP';
+BLIP_END   	: '/BLIP';
 CSLD_START 	: 'CSLD';
 CSLD_END   	: '/CSLD';
 SLD_START 	: 'SLD';
@@ -70,9 +86,11 @@ NVPR_START	: 'NVPR';
 NVPR_END	: '/NVPR';
 PH_START	: 'PH';
 PH_END		: '/PH';
+PIC_START	: 'PIC';
+PIC_END		: '/PIC';
 
 TYPE_ATTR	: 'TYPE';
-
+EMBED_ATTR	: 'EMBED';	
 TXBODY_START	: 'TXBODY';
 TXBODY_END	: '/TXBODY';
 P_START		: 'P';
