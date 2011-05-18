@@ -7,7 +7,7 @@ options {
 tokens {
 	SLIDE; SLIDE_CONTAINER; 
 	SHAPE_TREE; SHAPE;
-	PLACEHOLDER_TYPE;
+	NVPROPS;
 	TEXT_BODY; PARAGRAPH; TEXT_RUN;
 	PICTURE; BLIP_REF;
 }
@@ -36,15 +36,15 @@ shapeTreeContent
 	;
 	
 
-shape	:	SP_START placeholderType? textBody? SP_END
-	->	^(SHAPE placeholderType? textBody?)
+shape	:	SP_START shapePlaceholder? textBody? SP_END
+	->	^(SHAPE shapePlaceholder? textBody?)
 	;
-	
-placeholderType 
+		
+shapePlaceholder 
 	:	NVSPPR_START NVPR_START PH_START
 		TYPE_ATTR
 		PH_END NVPR_END NVSPPR_END
-	->	^(PLACEHOLDER_TYPE TYPE_ATTR)
+	->	^(NVPROPS TYPE_ATTR)
 	;
 
 textBody:	TXBODY_START paragraph+ TXBODY_END
@@ -60,15 +60,21 @@ textRun	:	R_START T_START TEXT* T_END R_END
 	->	^(TEXT_RUN TEXT*)
 	;
 
-picture	:	PIC_START blip PIC_END
+picture	:	PIC_START pictureProperties? blip PIC_END
 	->	^(PICTURE blip)
 	;
+
+pictureProperties 
+	:	NVPICPR_START NVPR_START PH_START
+		PH_END NVPR_END NVPICPR_END
+	->	^(NVPROPS)
+	;
+
 
 blip	:	BLIP_START EMBED_ATTR BLIP_END
 	->	^(BLIP_REF EMBED_ATTR)
 	;
 	
-
 BLIP_START 	: 'BLIP';
 BLIP_END   	: '/BLIP';
 CSLD_START 	: 'CSLD';
@@ -80,6 +86,8 @@ SP_END   	: '/SP';
 SPTREE_START 	: 'SPTREE';
 SPTREE_END   	: '/SPTREE';
 
+NVPICPR_START	: 'NVPICPR';
+NVPICPR_END	: '/NVPICPR';
 NVSPPR_START	: 'NVSPPR';
 NVSPPR_END	: '/NVSPPR';
 NVPR_START	: 'NVPR';
