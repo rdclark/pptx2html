@@ -24,7 +24,8 @@ public abstract class ParserTestUtilities {
 
     protected TokenStream getTokenStream(String fileName, String tokenFileName) throws IOException, XMLStreamException {
         Reader tokenReader = new FileReader(tokenFileName);
-        StaxTokenSource tokenSource = new StaxTokenSource(tokenReader, new FileReader(fileName));
+        StaxTokenSource tokenSource = new StaxTokenSource(tokenReader);
+        tokenSource.useReader(new FileReader(fileName));
         return new CommonTokenStream(tokenSource);
     }
 }

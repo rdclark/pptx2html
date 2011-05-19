@@ -2,6 +2,7 @@ package net.nextquestion.pptx2html.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
@@ -48,4 +49,7 @@ public class Slide {
         return imageRefs;
     }
 
+    public void addRelationships(Map<String, Relationship> relationships) {
+        // TODO implement
+    }
 }

@@ -26,18 +26,38 @@ public class StaxTokenSource implements TokenSource {
     /* Use a XMLStreamReader for speed */
     protected XMLStreamReader reader;
 
+    /* Creates the stream reader */
+    final private XMLInputFactory factory;
+
     /* Used to look up the token type numbers for each tag and attribute */
-    protected Map<String, Integer> string2type = new HashMap<String, Integer>();
+    private Map<String, Integer> string2type = new HashMap<String, Integer>();
 
     /* Buffers multiple tokens (start, attributes..., stop) for a tag */
-    protected Queue<Token> tokens = new LinkedList<Token>();
+    private Queue<Token> tokens = new LinkedList<Token>();
 
-    public StaxTokenSource(Reader tokenDefinitionsReader, Reader xmlReader) throws IOException, XMLStreamException {
-        XMLInputFactory factory = XMLInputFactory.newInstance();
-        this.reader = factory.createXMLStreamReader(xmlReader);
+
+    public StaxTokenSource(Reader tokenDefinitionsReader) throws IOException {
+        factory = XMLInputFactory.newInstance();
         initMapping(tokenDefinitionsReader);
     }
 
+    /**
+     * @deprecated  create the token source and then set the input file
+     * @param tokenDefinitionsReader
+     * @param xmlReader
+     * @throws IOException
+     * @throws XMLStreamException
+     */
+    public StaxTokenSource(Reader tokenDefinitionsReader, Reader xmlReader) throws IOException, XMLStreamException {
+        this(tokenDefinitionsReader);
+        useReader(xmlReader);
+    }
+
+
+    public void useReader(Reader xmlReader) throws XMLStreamException {
+        this.reader = factory.createXMLStreamReader(xmlReader);
+        tokens.clear();
+    }
 
     public Token nextToken() {
         try {
