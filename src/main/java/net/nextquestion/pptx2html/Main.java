@@ -1,7 +1,7 @@
 package net.nextquestion.pptx2html;
 
 import net.nextquestion.pptx2html.adaptors.StaxTokenSource;
-import net.nextquestion.pptx2html.parser.PPTXParser;
+import net.nextquestion.pptx2html.parser.SlideParser;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.TokenStream;
 import org.antlr.runtime.tree.CommonTree;
@@ -92,7 +92,7 @@ class Main {
             Reader tokenReader = new FileReader(source);
             StaxTokenSource tokenSource = new StaxTokenSource(tokenReader, new FileReader(source));
             TokenStream tokens = new CommonTokenStream(tokenSource);
-            PPTXParser parser = new PPTXParser(tokens);
+            SlideParser parser = new SlideParser(tokens);
 
             System.out.println("file: " + source);
 
@@ -100,7 +100,7 @@ class Main {
             //
             System.out.println("    Parser Start");
             long pStart = System.currentTimeMillis();
-            CommonTree parseTree = (CommonTree) parser.slide().getTree();
+            parser.slide();
             long stop = System.currentTimeMillis();
             System.out.println("      Parsed in " + (stop - pStart) + "ms.");
 

@@ -10,8 +10,6 @@ import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.util.Map;
 
-import static net.nextquestion.pptx2html.parser.RELSParser.*;
-import static org.antlr.hamcrest.HasTypedChild.hasChild;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -29,7 +27,9 @@ public class RelsParserTest extends AbstractParserTest {
 
     @Before
     public void parseTestFile() throws IOException, XMLStreamException, RecognitionException {
-        map = parseRelationships("src/test/resources/slide3.xml.rels");
+        TokenStream tokens = getTokenStream("src/test/resources/slide3.xml.rels", "target/generated-sources/antlr3/RELS.tokens");
+        RELSParser parser = new RELSParser(tokens);
+        map = parser.relationships();
         if (map != null && map.containsKey("rId1"))
             relationship = (Relationship) map.get("rId1");
     }
@@ -41,15 +41,9 @@ public class RelsParserTest extends AbstractParserTest {
 
     @Test
     public void relationshipHasContents() throws Exception {
-        assertThat(relationship.getRelTarget(), equalTo("foo"));
-        assertThat(relationship.getRelType(), equalTo("foo"));
-        assertThat(relationship.getRelID(), equalTo("foo"));
-    }
-
-    protected Map parseRelationships(String fileName) throws IOException, XMLStreamException, RecognitionException {
-        TokenStream tokens = getTokenStream(fileName, "target/generated-sources/antlr3/RELS.tokens");
-        RELSParser parser = new RELSParser(tokens);
-        return parser.relationships();
+        assertThat(relationship.getRelTarget(), equalTo("http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout"));
+        assertThat(relationship.getRelType(), equalTo("../slideLayouts/slideLayout2.xml"));
+        assertThat(relationship.getRelID(), equalTo("rId1"));
     }
 
 }

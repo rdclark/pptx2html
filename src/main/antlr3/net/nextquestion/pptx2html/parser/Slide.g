@@ -1,34 +1,29 @@
-grammar PPTX;
-
-options {
-	output=AST;
-}
-
-tokens {
-	SLIDE; SLIDE_CONTAINER; 
-	SHAPE_TREE; SHAPE;
-	NVPROPS;
-	TEXT_BODY; PARAGRAPH; TEXT_RUN;
-	PICTURE; BLIP_REF;
-}
+grammar Slide;
 
 @header {
 package net.nextquestion.pptx2html.parser;
+
+import net.nextquestion.pptx2html.model.Slide;
+
 }
 
-slide
-	:	SLD_START slideContainer SLD_END // TODO the container may be the wrong thing to look for -- may want the text bodies instead
-	->	^(SLIDE slideContainer)
+slide returns [Slide result]
+scope {
+  Slide container;
+}
+@init {
+  $slide::container = new Slide();
+}
+	:	SLD_START slideContainer SLD_END
+		{ $result = $slide::container; }
 	;
 
 slideContainer
 	:	CSLD_START shapeTree CSLD_END
-	->	^(SLIDE_CONTAINER shapeTree)
 	;
 
 shapeTree
 	:	SPTREE_START (NVPR_START NVPR_END)? shapeTreeContent* SPTREE_END
-	->	^(SHAPE_TREE shapeTreeContent*)
 	;
 
 shapeTreeContent
@@ -36,43 +31,53 @@ shapeTreeContent
 	;
 	
 
-shape	:	SP_START shapePlaceholder? textBody? SP_END
-	->	^(SHAPE shapePlaceholder? textBody?)
+shape
+scope {
+  String shapeType;
+  List<String> strings;
+}
+@init {
+  $shape::strings = new ArrayList<String>();
+}
+	:	SP_START shapePlaceholder? textBody? SP_END
+		{ $slide::container.add($shape::shapeType, $shape::strings); }
 	;
 		
 shapePlaceholder 
 	:	NVSPPR_START NVPR_START PH_START
-		TYPE_ATTR
+		t=TYPE_ATTR
 		PH_END NVPR_END NVSPPR_END
-	->	^(NVPROPS TYPE_ATTR)
+		{ $shape::shapeType = $t.text; }
 	;
 
-textBody:	TXBODY_START paragraph+ TXBODY_END
-	->	^(TEXT_BODY paragraph+)
+textBody:	TXBODY_START 
+			(p=paragraph { $shape::strings.add(p); })+ 
+		TXBODY_END
 	;
 
-paragraph	
-	:	P_START textRun* P_END
-	->	^(PARAGRAPH textRun*)
+paragraph returns [String result]
+@init {
+  StringBuffer buf = new StringBuffer();
+}
+	:	P_START 
+			(R_START T_START (t=TEXT {buf.append(t.getText());})* T_END R_END)*
+		P_END
+		{ $result = buf.toString(); }
 	;
 
-textRun	:	R_START T_START TEXT* T_END R_END
-	->	^(TEXT_RUN TEXT*)
+textRun	:	
 	;
 
 picture	:	PIC_START pictureProperties? blip PIC_END
-	->	^(PICTURE blip)
 	;
 
 pictureProperties 
 	:	NVPICPR_START NVPR_START PH_START
 		PH_END NVPR_END NVPICPR_END
-	->	^(NVPROPS)
 	;
 
 
 blip	:	BLIP_START EMBED_ATTR BLIP_END
-	->	^(BLIP_REF EMBED_ATTR)
 	;
 	
 BLIP_START 	: 'BLIP';
