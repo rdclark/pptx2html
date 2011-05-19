@@ -43,11 +43,12 @@ public class SlideParserTest extends ParserTestUtilities {
         assertThat(strings.isEmpty(), equalTo(true));
     }
 
-//    @Test
-//    public void imageSlideContainsPictureElement() throws Exception {
-//        Tree imageTree = parseSlide("src/test/resources/ImageBodySlide.xml");
-//        assertThat(imageTree, hasDescendant(PICTURE));
-//    }
+    @Test
+    public void imageSlideContainsPictureElement() throws Exception {
+        Slide imageSlide = parseSlide("src/test/resources/ImageBodySlide.xml");
+        assertThat(imageSlide.getImageRefs().size(), equalTo(1));
+        assertThat(imageSlide.getImageRefs().get(0), equalTo("rId2"));
+    }
 
     protected Slide parseSlide(String fileName) throws IOException, XMLStreamException, RecognitionException {
         TokenStream tokens = getTokenStream(fileName, "target/generated-sources/antlr3/Slide.tokens");

@@ -40,7 +40,7 @@ scope {
   $shape::strings = new ArrayList<String>();
 }
 	:	SP_START shapePlaceholder? textBody? SP_END
-		{ $slide::container.add($shape::shapeType, $shape::strings); }
+		{ $slide::container.addText($shape::shapeType, $shape::strings); }
 	;
 		
 shapePlaceholder 
@@ -77,7 +77,9 @@ pictureProperties
 	;
 
 
-blip	:	BLIP_START EMBED_ATTR BLIP_END
+blip	:	BLIP_START ref=EMBED_ATTR BLIP_END
+		{ $slide::container.addImageRef($ref.getText()); }
+
 	;
 	
 BLIP_START 	: 'BLIP';

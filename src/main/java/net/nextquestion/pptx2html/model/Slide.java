@@ -14,19 +14,13 @@ public class Slide {
 
     private List<String> strings = new ArrayList<String>();
     private List<String> titles = new ArrayList<String>();
+    private List<String> imageRefs = new ArrayList<String>();
 
     public Slide() {
     }
 
-    public List<String> getStrings() {
-        return strings;
-    }
 
-    public List<String> getTitles() {
-        return titles;
-    }
-
-    public void add(String shapeType, List<String> paragraphs) {
+    public void addText(String shapeType, List<String> paragraphs) {
         if (shapeType == null) shapeType = "";
         if (shapeType.endsWith("Title")) {
             for (String p: paragraphs) {
@@ -37,4 +31,21 @@ public class Slide {
             strings.addAll(paragraphs);
         }
     }
+
+    public void addImageRef(String refText) {
+      imageRefs.add(refText);
+    }
+
+    public List<String> getStrings() {
+        return strings;
+    }
+
+    public List<String> getTitles() {
+        return titles;
+    }
+
+    public List<String> getImageRefs() {
+        return imageRefs;
+    }
+
 }
