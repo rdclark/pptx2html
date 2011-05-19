@@ -21,7 +21,7 @@ import static org.hamcrest.Matchers.notNullValue;
  * Date: 4/12/11
  * Time: 23:19
  */
-public class SlideParserTest extends AbstractParserTest {
+public class SlideParserTest extends ParserTestUtilities {
 
     private Slide titleSlide;
 

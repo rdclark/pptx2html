@@ -20,7 +20,7 @@ import static org.hamcrest.Matchers.equalTo;
  * Date: 4/12/11
  * Time: 23:19
  */
-public class RelsParserTest extends AbstractParserTest {
+public class RelsParserTest extends ParserTestUtilities {
 
     private Map map;
     private Relationship relationship;
