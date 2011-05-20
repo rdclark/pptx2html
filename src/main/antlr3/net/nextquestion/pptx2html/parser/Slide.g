@@ -46,9 +46,9 @@ scope {
 		
 shapePlaceholder 
 	:	NVSPPR_START NVPR_START PH_START
-		t=TYPE_ATTR
+		t=TYPE_ATTR?
 		PH_END NVPR_END NVSPPR_END
-		{ $shape::shapeType = $t.text; }
+		{ $shape::shapeType = ($t==null)?"":$t.text; }
 	;
 
 textBody:	TXBODY_START 
