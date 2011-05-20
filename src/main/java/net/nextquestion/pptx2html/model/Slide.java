@@ -1,6 +1,8 @@
 package net.nextquestion.pptx2html.model;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,32 +15,43 @@ import java.util.Map;
  */
 public class Slide {
 
-    private List<String> strings = new ArrayList<String>();
-    private List<String> titles = new ArrayList<String>();
-    private List<String> imageRefs = new ArrayList<String>();
+    final private File sourceFile;
 
-    public Slide() {
+    private List<String> bullets = new ArrayList<String>();
+    private List<String> titles = new ArrayList<String>();
+    private String mainTitleType;
+    private List<String> imageRefs = new ArrayList<String>();
+    private Map<String, Relationship> relationshipMap = new HashMap<String, Relationship>();
+
+    public Slide(File sourceFile) {
+        this.sourceFile = sourceFile;
     }
 
 
     public void addText(String shapeType, List<String> paragraphs) {
         if (shapeType == null) shapeType = "";
-        if (shapeType.endsWith("Title")) {
-            for (String p: paragraphs) {
-                if (p.length() > 0)
+        if (shapeType.toLowerCase().endsWith("title")) {
+            for (String p : paragraphs) {
+                if (p.length() > 0) {
                     titles.add(p);
+                    if (mainTitleType == null) mainTitleType = shapeType;
+                }
             }
         } else {
-            strings.addAll(paragraphs);
+            for (String p : paragraphs) {
+                if (p.length() > 0) {
+                    bullets.add(p);
+                }
+            }
         }
     }
 
     public void addImageRef(String refText) {
-      imageRefs.add(refText);
+        imageRefs.add(refText);
     }
 
-    public List<String> getStrings() {
-        return strings;
+    public List<String> getBullets() {
+        return bullets;
     }
 
     public List<String> getTitles() {
@@ -49,7 +62,29 @@ public class Slide {
         return imageRefs;
     }
 
+    /**
+     * Returns "ctrTitle" for a title-only slide, "title" for the title of a regular slide.
+     *
+     * @return
+     */
+    public String getMainTitleType() {
+        return mainTitleType;
+    }
+
     public void addRelationships(Map<String, Relationship> relationships) {
-        // TODO implement
+        relationshipMap.putAll(relationships);
+    }
+
+    public List<File> getImages() {
+        List<File> result = new ArrayList<File>(imageRefs.size());
+        for (String refid : imageRefs) {
+            if (relationshipMap.containsKey(refid))
+                result.add(new File(sourceFile.getParent(), relationshipMap.get(refid).getRelTarget()));
+        }
+        return result;
+    }
+
+    public String getTitle() {
+        return titles.isEmpty() ? "" : titles.get(0);
     }
 }

@@ -1,0 +1,59 @@
+group slideshow;
+
+
+s6(slides) ::= <<
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>[your_title_here]</title>
+
+<!-- style sheet links -->
+<link rel="stylesheet" href="blank.css"         media="projection" id="styleProjection">
+<link rel="stylesheet" href="shared/screen.css" media="screen"     id="styleScreen">
+<link rel="stylesheet" href="shared/print.css"  media="print">
+
+<!-- S6 JS -->
+<script src="shared/jquery.js"></script>
+<script src="shared/jquery.slideshow.js"></script>
+<script>
+  $(document).ready( function() {
+    Slideshow.init();
+</script>
+
+<!-- Better Browser Banner for Microsoft Internet Explorer (IE) -->
+<!--[if IE]>
+<script src="shared/jquery.microsoft.js"></script>
+<![endif]-->
+
+</head>
+<body>
+
+<div class="layout">
+  <div id="header"></div>
+  <div id="footer">
+    <h1>[your_footer_here]</h1>
+    <h2>[your_subfooter_here]</h2>
+  </div>
+</div>
+
+<div class="presentation">
+  «slides:slide()»
+</div> <!-- presentation -->
+</body>
+</html>
+
+>>
+
+slide(s) ::= <<
+  <div class='slide'>
+    <h1>«s.title»</h1>
+    «if(s.bullets)»
+    <ul>
+      «s.bullets:{b|<li>«b»</li>
+}»
+    </ul>
+    «endif»
+  </div>
+
+>>

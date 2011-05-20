@@ -3,16 +3,17 @@ grammar Slide;
 @header {
 package net.nextquestion.pptx2html.parser;
 
+import java.io.File;
 import net.nextquestion.pptx2html.model.Slide;
 
 }
 
-slide returns [Slide result]
+slide [File sourceFile] returns [Slide result]
 scope {
   Slide container;
 }
 @init {
-  $slide::container = new Slide();
+  $slide::container = new Slide($sourceFile);
 }
 	:	SLD_START slideContainer SLD_END
 		{ $result = $slide::container; }
@@ -60,9 +61,13 @@ paragraph returns [String result]
   StringBuffer buf = new StringBuffer();
 }
 	:	P_START 
-			(R_START T_START (t=TEXT {buf.append(t.getText());})* T_END R_END)*
+			(R_START 
+				RPR_START clean=SMTCLEAN_ATTR? RPR_END
+				// clean will exist and be "0" if we should use the text as is.
+				T_START (t=TEXT {if (clean==null) buf.append(' '); buf.append(t.getText()); clean = null;})* T_END 
+			R_END)*
 		P_END
-		{ $result = buf.toString(); }
+		{ $result = buf.toString().trim(); }
 	;
 
 textRun	:	
@@ -92,6 +97,10 @@ SP_START 	: 'SP';
 SP_END   	: '/SP';
 SPTREE_START 	: 'SPTREE';
 SPTREE_END   	: '/SPTREE';
+
+RPR_START	: 'RPR';
+RPR_END		: '/RPR';
+SMTCLEAN_ATTR	: 'SMTCLEAN';
 
 NVPICPR_START	: 'NVPICPR';
 NVPICPR_END	: '/NVPICPR';

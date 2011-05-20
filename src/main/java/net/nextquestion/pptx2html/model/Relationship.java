@@ -15,10 +15,14 @@ public class Relationship  {
     final private String relType;
     final private String relTarget;
 
+    public Relationship(String relID, String relType, String relTarget) {
+        this.relID = relID;
+        this.relType = relType;
+        this.relTarget = relTarget;
+    }
+
     public Relationship(Token relID, Token relType, Token relTarget) {
-        this.relID = relID.getText();
-        this.relType = relType.getText();
-        this.relTarget = relTarget.getText();
+        this(relID.getText(), relType.getText(), relTarget.getText());
     }
 
     public String getRelID() {

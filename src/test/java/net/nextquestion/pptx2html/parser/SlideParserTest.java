@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.xml.stream.XMLStreamException;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class SlideParserTest extends ParserTestUtilities {
     }
     @Test
     public void titleSlideHasNoStrings() throws Exception {
-        List<String> strings = titleSlide.getStrings();
+        List<String> strings = titleSlide.getBullets();
         assertThat(strings, notNullValue());
         assertThat(strings.isEmpty(), equalTo(true));
     }
@@ -53,7 +54,7 @@ public class SlideParserTest extends ParserTestUtilities {
     protected Slide parseSlide(String fileName) throws IOException, XMLStreamException, RecognitionException {
         TokenStream tokens = getTokenStream(fileName, "target/generated-sources/antlr3/Slide.tokens");
         SlideParser parser = new SlideParser(tokens);
-        return parser.slide();
+        return parser.slide(new File(fileName));
     }
 
 
