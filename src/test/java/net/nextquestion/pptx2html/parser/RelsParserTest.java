@@ -41,8 +41,8 @@ public class RelsParserTest extends ParserTestUtilities {
 
     @Test
     public void relationshipHasContents() throws Exception {
-        assertThat(relationship.getRelTarget(), equalTo("http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout"));
-        assertThat(relationship.getRelType(), equalTo("../slideLayouts/slideLayout2.xml"));
+        assertThat(relationship.getRelType(), equalTo("http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout"));
+        assertThat(relationship.getRelTarget(), equalTo("../slideLayouts/slideLayout2.xml"));
         assertThat(relationship.getRelID(), equalTo("rId1"));
     }
 
