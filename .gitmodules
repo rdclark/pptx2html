@@ -1,0 +1,3 @@
+[submodule "s6"]
+	path = s6
+	url = git@github.com:rdclark/s6.git

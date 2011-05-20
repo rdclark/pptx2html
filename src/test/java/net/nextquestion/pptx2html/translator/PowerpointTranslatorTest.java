@@ -2,6 +2,8 @@ package net.nextquestion.pptx2html.translator;
 
 import net.nextquestion.pptx2html.model.Slide;
 import org.antlr.runtime.RecognitionException;
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,13 +27,27 @@ public class PowerpointTranslatorTest {
 
     private PowerpointTranslator translator;
     private String slideshow;
+    private File explodedPresentation;
+    private File slideshows;
+    private File generatedSlideshow;
 
     @Before
     public void prepareTranslator() throws IOException, XMLStreamException, RecognitionException {
-        File explodedPresentation = new File("src/test/resources/TestPresentation");
+        slideshows = new File("slideshows");
+        explodedPresentation = new File("src/test/resources/TestPresentation");
         assert(explodedPresentation.isDirectory());
         translator = new PowerpointTranslator(explodedPresentation);
-        slideshow = translator.buildSlideshow();
+        slideshow = translator.renderSlideshow();
+        generatedSlideshow  = null;
+    }
+
+    @After
+    public void cleanup() {
+        if (generatedSlideshow != null) try {
+            FileUtils.deleteDirectory(generatedSlideshow);
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
     }
 
     @Test
@@ -61,5 +77,21 @@ public class PowerpointTranslatorTest {
     public void htmlIncludesImageSlide() {
         assertThat(slideshow, containsString("Image Slide Headline"));
     }
+
+    @Test
+    public void htmlIncludesImage() {
+        assertThat(slideshow, containsString("<img src=\"images/image1.png\" />"));
+    }
+
+    @Test
+    public void packagedSlideshowIncludesImageFiles() throws XMLStreamException, RecognitionException, IOException {
+        generatedSlideshow = translator.packageSlideshow(explodedPresentation, slideshows);
+        assertThat(generatedSlideshow.isDirectory(), equalTo(true));
+        File images = new File(generatedSlideshow, "images");
+        assertThat(images.isDirectory(), equalTo(true));
+        File imageFile = new File(images, "image1.png");
+        assertThat(imageFile.exists(), equalTo(true));
+    }
+
 
 }

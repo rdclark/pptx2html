@@ -54,6 +54,10 @@ slide(s) ::= <<
 }»
     </ul>
     «endif»
+    «if(s.images)»
+      «s.imageNames:{iName|<img src="images/«iName»" />
+}»
+    «endif»
   </div>
 
 >>

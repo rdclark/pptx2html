@@ -81,10 +81,10 @@ public class SlideTest {
 
         slide.addImageRef("rId1");
         slide.addRelationships(relationships);
-        List <File> images = slide.getImages();
+        List <String> images = slide.getImageNames();
 
         assertThat(images.size(),  equalTo(1));
-        assertThat(images.get(0).getName(), equalTo("test.png"));
+        assertThat(images.get(0), equalTo("test.png"));
     }
 
 }

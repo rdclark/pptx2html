@@ -2,6 +2,8 @@
 *~
 target
 tmp
+sourcePowerpoints
+slideshows
 
 # Don't include IntelliJ IDEA files
 .idea

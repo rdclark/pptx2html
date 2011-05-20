@@ -13,7 +13,7 @@ import java.util.HashMap;
 }
 
 
-relationships returns [Map relationshipMap]
+relationships returns [Map<String, Relationship> relationshipMap]
 @init {
 	relationshipMap = new HashMap<String, Relationship>();
 }
@@ -24,7 +24,7 @@ relationships returns [Map relationshipMap]
 
 relationship returns [Relationship r]
 	:	RELATIONSHIP_START id=ID_ATTR target=TARGET_ATTR rtype=TYPE_ATTR RELATIONSHIP_END
-		{ $r = new Relationship(id, target, rtype); }
+		{ $r = new Relationship(id, rtype, target); }
 	;
 
 RELATIONSHIP_START:	'RELATIONSHIP';

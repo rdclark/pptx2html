@@ -7,11 +7,10 @@ import net.nextquestion.pptx2html.parser.RELSParser;
 import net.nextquestion.pptx2html.parser.SlideParser;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
-import org.antlr.runtime.TokenStream;
+import org.apache.commons.io.FileUtils;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupFile;
-import sun.misc.Regexp;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.*;
@@ -23,11 +22,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
- * Created by IntelliJ IDEA.
- * User: rdclark
- * Date: 5/19/11
- * Time: 11:12 AM
- * To change this template use File | Settings | File Templates.
+ * Reads a Powerpoint file and extracts it into a HTML5 format slide show.
  */
 public class PowerpointTranslator {
 
@@ -40,6 +35,8 @@ public class PowerpointTranslator {
 
     /**
      * Package-level only, for testing
+     * @param explodedPresentation the unzipped PPTX file's container
+     * @throws java.io.IOException for trouble with any of the XML files
      */
     PowerpointTranslator(File explodedPresentation) throws IOException {
         this.explodedPresentation = explodedPresentation;
@@ -47,9 +44,9 @@ public class PowerpointTranslator {
         relsTokenSource = new StaxTokenSource(new FileReader("target/generated-sources/antlr3/RELS.tokens"));
     }
 
-    public PowerpointTranslator(String presentationName) throws IOException {
-        this(presentationName, new File("tmp/"));
-    }
+//    public PowerpointTranslator(String presentationName) throws IOException {
+//        this(presentationName, new File("tmp/"));
+//    }
 
     public PowerpointTranslator(String presentationName, File tempDirectory) throws IOException {
         this(unzip(presentationName, tempDirectory));
@@ -86,19 +83,19 @@ public class PowerpointTranslator {
         return slides;
     }
 
-    public String buildSlideshow() throws XMLStreamException, RecognitionException, FileNotFoundException {
+    /**
+     * Generates the HTML for the slideshow.  Package-level to facilitate testing (i.e. without copying
+     * the rest of the files that make up a complete package.)
+     * @return the HTML source for a slideshow.
+     * @throws XMLStreamException   if there was a problem with any of the source files
+     * @throws RecognitionException  is there was an ANTLR problem
+     * @throws FileNotFoundException if any of the files is missing (very unlikely!)
+     */
+    String renderSlideshow() throws XMLStreamException, RecognitionException, FileNotFoundException {
         STGroup group = new STGroupFile("src/main/resources/templates/slideshow.stg", '«', '»');
         ST st = group.getInstanceOf("s6");
         st.add("slides", getSlides());
-        String result = st.render(); // yields "int x = 0;"
-        return result;
-    }
-
-    protected TokenStream getTokenStream(String fileName, String tokenFileName) throws IOException, XMLStreamException {
-        Reader tokenReader = new FileReader(tokenFileName);
-        StaxTokenSource tokenSource = new StaxTokenSource(tokenReader);
-        tokenSource.useReader(new FileReader(fileName));
-        return new CommonTokenStream(tokenSource);
+        return st.render();
     }
 
     final private static int BUFFER = 2048;
@@ -113,7 +110,7 @@ public class PowerpointTranslator {
 
         File unzippedPresentation = new File(tempDirectory, folderName);
         try {
-            BufferedOutputStream dest = null;
+            BufferedOutputStream dest;
             FileInputStream fis = new FileInputStream(zippedFile);
             ZipInputStream zis = new ZipInputStream(new BufferedInputStream(fis));
             ZipEntry entry;
@@ -139,4 +136,22 @@ public class PowerpointTranslator {
     }
 
 
+    File packageSlideshow(File explodedPresentation, File outputDirectory) throws IOException, XMLStreamException, RecognitionException {
+        if (explodedPresentation == null || !explodedPresentation.isDirectory()) throw new IllegalArgumentException("need exploded presentation");
+        if (!outputDirectory.exists()) outputDirectory.mkdirs();
+
+        File slideshowDir = new File(outputDirectory, explodedPresentation.getName());
+        slideshowDir.mkdir();
+
+        // Write the main slide file
+        File slideFile = new File(slideshowDir, "index.html");
+        String html = renderSlideshow();
+        FileUtils.writeStringToFile(slideFile, html, "UTF-8");
+
+        // TODO copy the base slideshow files
+        File imagesDir = new File(slideshowDir, "images");
+        FileUtils.copyDirectory(new File(explodedPresentation, "ppt/media"), imagesDir);
+
+        return slideshowDir;
+    }
 }
