@@ -44,11 +44,12 @@ public class PowerpointTranslator {
     }
 
     void cleanupTempFiles() throws IOException {
-         FileUtils.deleteDirectory(explodedPresentation);
+        FileUtils.deleteDirectory(explodedPresentation);
     }
 
     /**
      * Package-level only, for testing
+     *
      * @param explodedPresentation the unzipped PPTX file's container
      * @throws java.io.IOException for trouble with any of the XML files
      */
@@ -99,8 +100,9 @@ public class PowerpointTranslator {
     /**
      * Generates the HTML for the slideshow.  Package-level to facilitate testing (i.e. without copying
      * the rest of the files that make up a complete package.)
+     *
      * @return the HTML source for a slideshow.
-     * @throws XMLStreamException   if there was a problem with any of the source files
+     * @throws XMLStreamException    if there was a problem with any of the source files
      * @throws RecognitionException  is there was an ANTLR problem
      * @throws FileNotFoundException if any of the files is missing (very unlikely!)
      */
@@ -113,12 +115,13 @@ public class PowerpointTranslator {
 
     final private static int BUFFER = 2048;
 
-    private static File unzip(File zippedFile, File tempDirectory) throws FileNotFoundException {
+    private static File unzip(File zippedFile, File tempDirectory) throws IOException {
         String pptxName = zippedFile.getName();
         if (!zippedFile.exists()) throw new FileNotFoundException(pptxName);
         if (!pptxName.toLowerCase().endsWith(".pptx"))
             throw new IllegalArgumentException("PPTX file required: " + pptxName);
         File unzippedPresentation = new File(tempDirectory, pptxName.substring(0, pptxName.length() - 5));
+        FileUtils.forceMkdir(unzippedPresentation);
         try {
             BufferedOutputStream dest;
             FileInputStream fis = new FileInputStream(zippedFile);
@@ -129,7 +132,10 @@ public class PowerpointTranslator {
                 int count;
                 byte data[] = new byte[BUFFER];
                 // write the files to the disk
-                FileOutputStream fos = new FileOutputStream(new File(unzippedPresentation, entry.getName()));
+                String entryName = entry.getName();
+                File file = new File(unzippedPresentation, entryName);
+                if (!file.getParentFile().isDirectory()) FileUtils.forceMkdir(file.getParentFile());
+                FileOutputStream fos = new FileOutputStream(file);
                 dest = new BufferedOutputStream(fos, BUFFER);
                 while ((count = zis.read(data, 0, BUFFER))
                         != -1) {
@@ -146,9 +152,9 @@ public class PowerpointTranslator {
     }
 
 
-
     File packageSlideshow(File outputDirectory) throws IOException, XMLStreamException, RecognitionException {
-        if (explodedPresentation == null || !explodedPresentation.isDirectory()) throw new IllegalArgumentException("need exploded presentation");
+        if (explodedPresentation == null || !explodedPresentation.isDirectory())
+            throw new IllegalArgumentException("need exploded presentation");
         if (!outputDirectory.exists()) FileUtils.forceMkdir(outputDirectory);
 
         File slideshowDir = new File(outputDirectory, explodedPresentation.getName());
