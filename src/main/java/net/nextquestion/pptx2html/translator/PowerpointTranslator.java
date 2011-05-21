@@ -72,14 +72,13 @@ public class PowerpointTranslator {
             // Get a list of the slide files (in order)
             final Pattern namePattern = Pattern.compile("slide\\d+\\.xml");
             File slideFolder = new File(explodedPresentation, "ppt/slides");
-            File[] slideFiles = slideFolder.listFiles(new FilenameFilter() {
-                public boolean accept(File file, String name) {
-                    return namePattern.matcher(name).matches();
-                }
-            });
-            // parse relationships and slides
             File relsFolder = new File(slideFolder, "_rels");
-            for (File slideFile : slideFiles) {
+
+            int slideNum = 1;
+            for (; ; ) {
+                File slideFile = new File(slideFolder, "slide" + slideNum + ".xml");
+                if (!slideFile.exists()) break;
+                System.err.println("Processing " + slideFile.getName());
                 // Extract relationships, extract the Slide, merge
                 File relsFile = new File(relsFolder, slideFile.getName() + ".rels");
                 relsTokenSource.useReader(new FileReader(relsFile));
@@ -91,7 +90,7 @@ public class PowerpointTranslator {
                 Slide slide = slideParser.slide(slideFile);
                 slide.addRelationships(relationships);
                 slides.add(slide);
-
+                slideNum++;
             }
         }
         return slides;
