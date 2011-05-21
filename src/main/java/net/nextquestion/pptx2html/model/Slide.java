@@ -7,11 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by IntelliJ IDEA.
- * User: rdclark
- * Date: 5/18/11
- * Time: 14:46 PM
- * To change this template use File | Settings | File Templates.
+ * Container for information about one slide
  */
 public class Slide {
 
@@ -32,14 +28,14 @@ public class Slide {
         if (shapeType == null) shapeType = "";
         if (shapeType.toLowerCase().endsWith("title")) {
             for (String p : paragraphs) {
-                if (p.length() > 0) {
+                if (p != null && p.length() > 0) {
                     titles.add(p);
                     if (mainTitleType == null) mainTitleType = shapeType;
                 }
             }
         } else {
             for (String p : paragraphs) {
-                if (p.length() > 0) {
+                if (p != null && p.length() > 0) {
                     bullets.add(p);
                 }
             }
@@ -63,9 +59,7 @@ public class Slide {
     }
 
     /**
-     * Returns "ctrTitle" for a title-only slide, "title" for the title of a regular slide.
-     *
-     * @return
+     * @return "ctrTitle" for a title-only slide, "title" for the title of a regular slide.
      */
     public String getMainTitleType() {
         return mainTitleType;
@@ -93,7 +87,7 @@ public class Slide {
     public List<String> getImageNames() {
         List<File> imageFiles = getImageFiles();
         List<String> result = new ArrayList<String>(imageFiles.size());
-        for (File file: imageFiles) {
+        for (File file : imageFiles) {
             result.add(file.getName());
         }
         return result;
