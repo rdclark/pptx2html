@@ -17,7 +17,6 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -70,7 +69,7 @@ public class PowerpointTranslator {
         if (slides == null) {
             slides = new ArrayList<Slide>();
             // Get a list of the slide files (in order)
-            final Pattern namePattern = Pattern.compile("slide\\d+\\.xml");
+//            final Pattern namePattern = Pattern.compile("slide\\d+\\.xml");
             File slideFolder = new File(explodedPresentation, "ppt/slides");
             File relsFolder = new File(slideFolder, "_rels");
 
@@ -164,7 +163,12 @@ public class PowerpointTranslator {
         String html = renderSlideshow();
         FileUtils.writeStringToFile(slideFile, html, "UTF-8");
 
-        // TODO copy the base slideshow files
+        // copy the base slideshow files
+        File s6Dir = new File("s6");
+        if (s6Dir.isDirectory()) {
+            FileUtils.copyDirectoryToDirectory(new File(s6Dir, "shared"), slideshowDir);
+            FileUtils.copyFileToDirectory(new File(s6Dir, "blank.css"), slideshowDir);
+        }
         File imagesDir = new File(slideshowDir, "images");
         FileUtils.copyDirectory(new File(explodedPresentation, "ppt/media"), imagesDir);
 
