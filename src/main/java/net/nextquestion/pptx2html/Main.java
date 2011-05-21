@@ -1,15 +1,8 @@
 package net.nextquestion.pptx2html;
 
-import net.nextquestion.pptx2html.adaptors.StaxTokenSource;
-import net.nextquestion.pptx2html.parser.SlideParser;
 import net.nextquestion.pptx2html.translator.PowerpointTranslator;
-import org.antlr.runtime.CommonTokenStream;
-import org.antlr.runtime.TokenStream;
-import org.antlr.runtime.tree.CommonTree;
 
-import java.io.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import java.io.File;
 
 
 /**
@@ -20,8 +13,7 @@ import java.util.zip.ZipInputStream;
 class Main {
 
     /**
-     * Just a simple test driver for the ASP parser
-     * to show how to call it.
+     * Just a simple test driver
      *
      * @param args file and/or directory names
      */
@@ -30,16 +22,14 @@ class Main {
         try {
 
             if (args.length > 0) {
-                File tempDir = new File("tmp/");
+                File outputDir = new File("slideshows");
                 for (String filename : args) {
-                    PowerpointTranslator translator = new PowerpointTranslator(filename, tempDir);
-                    // ask the translator to do its work
+                    PowerpointTranslator.convertPresentation(new File(filename), outputDir);
                 }
             } else {
-                System.err.println("Usage: java -jar pptx2html-1.0d1-jar-with-dependencies.jar <directory | filename.dmo>");
+                System.err.println("Usage: pass file names of presentations to convert");
             }
         } catch (Exception ex) {
-            System.err.println("ANTLR demo parser threw exception:");
             ex.printStackTrace();
         }
     }

@@ -85,7 +85,7 @@ public class PowerpointTranslatorTest {
 
     @Test
     public void packagedSlideshowIncludesImageFiles() throws XMLStreamException, RecognitionException, IOException {
-        generatedSlideshow = translator.packageSlideshow(explodedPresentation, slideshows);
+        generatedSlideshow = translator.packageSlideshow(slideshows);
         assertThat(generatedSlideshow.isDirectory(), equalTo(true));
         File images = new File(generatedSlideshow, "images");
         assertThat(images.isDirectory(), equalTo(true));

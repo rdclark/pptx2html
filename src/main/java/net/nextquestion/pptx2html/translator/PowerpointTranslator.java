@@ -27,11 +27,25 @@ import java.util.zip.ZipInputStream;
 public class PowerpointTranslator {
 
 
-    final private File explodedPresentation;
+    private File explodedPresentation;
     private List<Slide> slides;
 
     final private StaxTokenSource slideTokenSource;
     final private StaxTokenSource relsTokenSource;
+
+    static public File convertPresentation(File presentation, File outputDirectory) throws IOException, XMLStreamException, RecognitionException {
+        if (!presentation.isFile()) throw new IllegalArgumentException("Not a file: " + presentation);
+        if (!outputDirectory.isDirectory()) FileUtils.forceMkdir(outputDirectory);
+        File tempDir = FileUtils.getTempDirectory();
+        PowerpointTranslator translator = new PowerpointTranslator(presentation, tempDir);
+        File slideshow = translator.packageSlideshow(outputDirectory);
+        translator.cleanupTempFiles();
+        return slideshow;
+    }
+
+    void cleanupTempFiles() throws IOException {
+         FileUtils.deleteDirectory(explodedPresentation);
+    }
 
     /**
      * Package-level only, for testing
@@ -44,13 +58,12 @@ public class PowerpointTranslator {
         relsTokenSource = new StaxTokenSource(new FileReader("target/generated-sources/antlr3/RELS.tokens"));
     }
 
-//    public PowerpointTranslator(String presentationName) throws IOException {
-//        this(presentationName, new File("tmp/"));
-//    }
-
-    public PowerpointTranslator(String presentationName, File tempDirectory) throws IOException {
-        this(unzip(presentationName, tempDirectory));
+    public PowerpointTranslator(File presentation, File tempDirectory) throws IOException {
+        this(unzip(presentation, tempDirectory));
+//        if (explodedPresentation != null && explodedPresentation.isDirectory())
+//            FileUtils.deleteDirectory(explodedPresentation);
     }
+
 
     public List<Slide> getSlides() throws FileNotFoundException, XMLStreamException, RecognitionException {
         if (slides == null) {
@@ -100,15 +113,12 @@ public class PowerpointTranslator {
 
     final private static int BUFFER = 2048;
 
-    private static File unzip(String pptxName, File tempDirectory) throws FileNotFoundException {
-        // TODO Use Java's temporary file facility
+    private static File unzip(File zippedFile, File tempDirectory) throws FileNotFoundException {
+        String pptxName = zippedFile.getName();
+        if (!zippedFile.exists()) throw new FileNotFoundException(pptxName);
         if (!pptxName.toLowerCase().endsWith(".pptx"))
             throw new IllegalArgumentException("PPTX file required: " + pptxName);
-        File zippedFile = new File(pptxName);
-        if (!zippedFile.exists()) throw new FileNotFoundException(zippedFile.getName());
-        String folderName = pptxName.substring(0, pptxName.length() - 5);
-
-        File unzippedPresentation = new File(tempDirectory, folderName);
+        File unzippedPresentation = new File(tempDirectory, pptxName.substring(0, pptxName.length() - 5));
         try {
             BufferedOutputStream dest;
             FileInputStream fis = new FileInputStream(zippedFile);
@@ -136,12 +146,13 @@ public class PowerpointTranslator {
     }
 
 
-    File packageSlideshow(File explodedPresentation, File outputDirectory) throws IOException, XMLStreamException, RecognitionException {
+
+    File packageSlideshow(File outputDirectory) throws IOException, XMLStreamException, RecognitionException {
         if (explodedPresentation == null || !explodedPresentation.isDirectory()) throw new IllegalArgumentException("need exploded presentation");
-        if (!outputDirectory.exists()) outputDirectory.mkdirs();
+        if (!outputDirectory.exists()) FileUtils.forceMkdir(outputDirectory);
 
         File slideshowDir = new File(outputDirectory, explodedPresentation.getName());
-        slideshowDir.mkdir();
+        FileUtils.forceMkdir(slideshowDir);
 
         // Write the main slide file
         File slideFile = new File(slideshowDir, "index.html");
