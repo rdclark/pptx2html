@@ -63,7 +63,18 @@ public class SlideTest {
 
 
     @Test
-    public void slideRoutesNonTitleStringsToBody() {
+    public void slideRoutesFooterStrings() {
+        String[] footerArray = {"Copyright today"};
+
+        slide.addText("ftr", Arrays.asList(footerArray));
+        List<String> footerStrings = slide.getFooter();
+
+        assertThat(footerStrings.size(), equalTo(1));
+        assertThat(footerStrings.get(0), equalTo("Copyright today"));
+    }
+
+    @Test
+    public void slideRoutesOtherStringsToBody() {
         String[] message = {"Hello, world"};
 
         slide.addText("", Arrays.asList(message));

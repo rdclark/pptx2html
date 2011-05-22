@@ -18,6 +18,7 @@ public class Slide {
     private String mainTitleType;
     private List<String> imageRefs = new ArrayList<String>();
     private Map<String, Relationship> relationshipMap = new HashMap<String, Relationship>();
+    private List<String> footer = new ArrayList<String>();
 
     public Slide(File sourceFile) {
         this.sourceFile = sourceFile;
@@ -25,22 +26,24 @@ public class Slide {
 
 
     public void addText(String shapeType, List<String> paragraphs) {
-        if (shapeType == null) shapeType = "";
-        if (shapeType.toLowerCase().endsWith("title")) {
-            for (String p : paragraphs) {
-                if (p != null && p.length() > 0) {
-                    titles.add(p);
-                    if (mainTitleType == null) mainTitleType = shapeType;
-                }
-            }
+        if (shapeType == null) {
+            shapeType = "";
         } else {
-            for (String p : paragraphs) {
-                if (p != null && p.length() > 0) {
-                    bullets.add(p);
-                }
+            shapeType = shapeType.toLowerCase();
+        }
+        for (String p : paragraphs) {
+            if (p == null || p.length() == 0) continue;
+            if (shapeType.endsWith("title")) {
+                titles.add(p);
+                if (mainTitleType == null) mainTitleType = shapeType;
+            } else if (shapeType.equals("ftr")) {
+                footer.add(p);
+            } else {
+                bullets.add(p);
             }
         }
     }
+
 
     public void addImageRef(String refText) {
         imageRefs.add(refText);
@@ -97,4 +100,7 @@ public class Slide {
         return titles.isEmpty() ? "" : titles.get(0);
     }
 
+    public List<String> getFooter() {
+        return footer;
+    }
 }
