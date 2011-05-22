@@ -1,6 +1,7 @@
 package net.nextquestion.pptx2html.parser;
 
 import net.nextquestion.pptx2html.model.Slide;
+import net.nextquestion.pptx2html.model.Slideshow;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.TokenStream;
 import org.junit.Before;
@@ -54,7 +55,9 @@ public class SlideParserTest extends ParserTestUtilities {
     protected Slide parseSlide(String fileName) throws IOException, XMLStreamException, RecognitionException {
         TokenStream tokens = getTokenStream(fileName, "target/generated-sources/antlr3/Slide.tokens");
         SlideParser parser = new SlideParser(tokens);
-        return parser.slide(new File(fileName));
+        Slide slide = new Slide(new File(fileName));
+        parser.slide(slide);
+        return slide;
     }
 
 

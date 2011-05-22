@@ -11,23 +11,20 @@ import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
 
 /**
- * Created by IntelliJ IDEA.
- * User: rdclark
+ * Test the Slide object's embedded logic.
+ * @author rdclark
  * Date: 5/19/11
  * Time: 15:00 PM
- * To change this template use File | Settings | File Templates.
  */
 public class SlideTest {
 
-    private File slideFile;
     private Slide slide;
 
     @Before
     public void setUp() {
-        slideFile = new File("hello.xml");
+        File slideFile = new File("hello.xml");
         slide = new Slide(slideFile);
     }
 
@@ -61,17 +58,6 @@ public class SlideTest {
         assertThat(slide.getTitle(), equalTo("Hello, world"));
     }
 
-
-    @Test
-    public void slideRoutesFooterStrings() {
-        String[] footerArray = {"Copyright today"};
-
-        slide.addText("ftr", Arrays.asList(footerArray));
-        List<String> footerStrings = slide.getFooter();
-
-        assertThat(footerStrings.size(), equalTo(1));
-        assertThat(footerStrings.get(0), equalTo("Copyright today"));
-    }
 
     @Test
     public void slideRoutesOtherStringsToBody() {

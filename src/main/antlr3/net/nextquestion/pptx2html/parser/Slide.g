@@ -8,15 +8,14 @@ import net.nextquestion.pptx2html.model.Slide;
 
 }
 
-slide [File sourceFile] returns [Slide result]
+slide [Slide aSlide]
 scope {
   Slide container;
 }
 @init {
-  $slide::container = new Slide($sourceFile);
+  $slide::container = $aSlide;
 }
 	:	SLD_START slideContainer SLD_END
-		{ $result = $slide::container; }
 	;
 
 slideContainer

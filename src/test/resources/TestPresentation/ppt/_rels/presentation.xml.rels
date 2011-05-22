@@ -4,15 +4,19 @@
                   Target="slides/slide2.xml"/>
     <Relationship Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide"
                   Target="slides/slide3.xml"/>
-    <Relationship Id="rId5" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/printerSettings"
+    <Relationship Id="rId5" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/notesMaster"
+                  Target="notesMasters/notesMaster1.xml"/>
+    <Relationship Id="rId6" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/handoutMaster"
+                  Target="handoutMasters/handoutMaster1.xml"/>
+    <Relationship Id="rId7" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/printerSettings"
                   Target="printerSettings/printerSettings1.bin"/>
-    <Relationship Id="rId6" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/presProps"
+    <Relationship Id="rId8" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/presProps"
                   Target="presProps.xml"/>
-    <Relationship Id="rId7" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/viewProps"
+    <Relationship Id="rId9" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/viewProps"
                   Target="viewProps.xml"/>
-    <Relationship Id="rId8" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme"
+    <Relationship Id="rId10" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme"
                   Target="theme/theme1.xml"/>
-    <Relationship Id="rId9" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/tableStyles"
+    <Relationship Id="rId11" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/tableStyles"
                   Target="tableStyles.xml"/>
     <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideMaster"
                   Target="slideMasters/slideMaster1.xml"/>

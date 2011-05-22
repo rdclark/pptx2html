@@ -13,17 +13,21 @@ public class Slide {
 
     final private File sourceFile;
 
+    private Slideshow parent;
+
     private List<String> bullets = new ArrayList<String>();
     private List<String> titles = new ArrayList<String>();
     private String mainTitleType;
     private List<String> imageRefs = new ArrayList<String>();
     private Map<String, Relationship> relationshipMap = new HashMap<String, Relationship>();
-    private List<String> footer = new ArrayList<String>();
 
     public Slide(File sourceFile) {
         this.sourceFile = sourceFile;
     }
 
+    void setParent(Slideshow parent) {
+        this.parent = parent;
+    }
 
     public void addText(String shapeType, List<String> paragraphs) {
         if (shapeType == null) {
@@ -36,8 +40,8 @@ public class Slide {
             if (shapeType.endsWith("title")) {
                 titles.add(p);
                 if (mainTitleType == null) mainTitleType = shapeType;
-            } else if (shapeType.equals("ftr")) {
-                footer.add(p);
+            } else if (shapeType.equals("ftr") && parent != null) {
+                parent.addFooter(p);
             } else {
                 bullets.add(p);
             }
@@ -100,7 +104,4 @@ public class Slide {
         return titles.isEmpty() ? "" : titles.get(0);
     }
 
-    public List<String> getFooter() {
-        return footer;
-    }
 }

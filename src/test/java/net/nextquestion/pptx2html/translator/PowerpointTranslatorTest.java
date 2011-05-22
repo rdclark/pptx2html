@@ -17,27 +17,25 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 /**
- * Created by IntelliJ IDEA.
- * User: rdclark
+ * Runs the powerpoint translator and examines the output for specific strings.
+ * @author rdclark
  * Date: 5/19/11
  * Time: 11:11 AM
- * To change this template use File | Settings | File Templates.
  */
 public class PowerpointTranslatorTest {
 
     private PowerpointTranslator translator;
-    private String slideshow;
-    private File explodedPresentation;
+    private String html;
     private File slideshows;
     private File generatedSlideshow;
 
     @Before
     public void prepareTranslator() throws IOException, XMLStreamException, RecognitionException {
         slideshows = new File("slideshows");
-        explodedPresentation = new File("src/test/resources/TestPresentation");
+        File explodedPresentation = new File("src/test/resources/TestPresentation");
         assert(explodedPresentation.isDirectory());
         translator = new PowerpointTranslator(explodedPresentation);
-        slideshow = translator.renderSlideshow();
+        html = translator.renderSlideshow();
         generatedSlideshow  = null;
     }
 
@@ -46,7 +44,7 @@ public class PowerpointTranslatorTest {
         if (generatedSlideshow != null) try {
             FileUtils.deleteDirectory(generatedSlideshow);
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace();
         }
     }
 
@@ -59,28 +57,34 @@ public class PowerpointTranslatorTest {
 
     @Test
     public void translatorGeneratesHTML() {
-        assertThat(slideshow, startsWith("<!DOCTYPE html>"));
+        assertThat(html, startsWith("<!DOCTYPE html>"));
     }
 
     @Test
     public void htmlIncludesTitleSlide() {
-        assertThat(slideshow, containsString("Test Slide Title"));
+        assertThat(html, containsString("Test Slide Title"));
     }
 
     @Test
     public void htmlIncludesBulletedSlide() {
-        assertThat(slideshow, containsString("Test Slide Headline"));
-        assertThat(slideshow, allOf(containsString("li>Bullet point 1</li>"), containsString("li>Bullet point 1</li>"), containsString("li>Bullet Point 3</li>")));
+        assertThat(html, containsString("Test Slide Headline"));
+        assertThat(html, allOf(containsString("li>Bullet point 1</li>"), containsString("li>Bullet point 1</li>"), containsString("li>Bullet Point 3</li>")));
     }
 
     @Test
     public void htmlIncludesImageSlide() {
-        assertThat(slideshow, containsString("Image Slide Headline"));
+        assertThat(html, containsString("Image Slide Headline"));
+    }
+
+    @Test
+    public void htmlIncludesCommonFooter() {
+        assertThat(html, containsString("<h1>This is a footer</h1>"));
+        assertThat(html, not(containsString("<h2>This is a footer</h2>")));
     }
 
     @Test
     public void htmlIncludesImage() {
-        assertThat(slideshow, containsString("<img src=\"images/image1.png\" />"));
+        assertThat(html, containsString("<img src=\"images/image1.png\" />"));
     }
 
     @Test

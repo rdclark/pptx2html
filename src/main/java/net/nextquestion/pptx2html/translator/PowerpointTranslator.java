@@ -3,6 +3,7 @@ package net.nextquestion.pptx2html.translator;
 import net.nextquestion.pptx2html.adaptors.StaxTokenSource;
 import net.nextquestion.pptx2html.model.Relationship;
 import net.nextquestion.pptx2html.model.Slide;
+import net.nextquestion.pptx2html.model.Slideshow;
 import net.nextquestion.pptx2html.parser.RELSParser;
 import net.nextquestion.pptx2html.parser.SlideParser;
 import org.antlr.runtime.CommonTokenStream;
@@ -14,7 +15,6 @@ import org.stringtemplate.v4.STGroupFile;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -27,7 +27,7 @@ public class PowerpointTranslator {
 
 
     private File explodedPresentation;
-    private List<Slide> slides;
+    private Slideshow slideshow;
 
     final private StaxTokenSource slideTokenSource;
     final private StaxTokenSource relsTokenSource;
@@ -65,11 +65,9 @@ public class PowerpointTranslator {
     }
 
 
-    public List<Slide> getSlides() throws FileNotFoundException, XMLStreamException, RecognitionException {
-        if (slides == null) {
-            slides = new ArrayList<Slide>();
-            // Get a list of the slide files (in order)
-//            final Pattern namePattern = Pattern.compile("slide\\d+\\.xml");
+    public Slideshow getSlideshow() throws FileNotFoundException, XMLStreamException, RecognitionException {
+        if (slideshow == null) {
+            slideshow = new Slideshow();
             File slideFolder = new File(explodedPresentation, "ppt/slides");
             File relsFolder = new File(slideFolder, "_rels");
 
@@ -86,13 +84,19 @@ public class PowerpointTranslator {
 
                 slideTokenSource.useReader(new FileReader(slideFile));
                 SlideParser slideParser = new SlideParser(new CommonTokenStream(slideTokenSource));
-                Slide slide = slideParser.slide(slideFile);
+                Slide slide = new Slide(slideFile);
+                slideshow.add(slide);
+                slideParser.slide(slide);
                 slide.addRelationships(relationships);
-                slides.add(slide);
                 slideNum++;
             }
+
         }
-        return slides;
+        return slideshow;
+    }
+
+    public List<Slide> getSlides() throws FileNotFoundException, XMLStreamException, RecognitionException {
+        return getSlideshow().getSlides();
     }
 
     /**
@@ -107,7 +111,7 @@ public class PowerpointTranslator {
     String renderSlideshow() throws XMLStreamException, RecognitionException, FileNotFoundException {
         STGroup group = new STGroupFile("src/main/resources/templates/slideshow.stg", '«', '»');
         ST st = group.getInstanceOf("s6");
-        st.add("slides", getSlides());
+        st.add("slideshow", getSlideshow());
         return st.render();
     }
 

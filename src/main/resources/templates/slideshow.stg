@@ -1,7 +1,7 @@
 group slideshow;
 
 
-s6(slides) ::= <<
+s6(slideshow) ::= <<
 <!DOCTYPE html>
 <html>
 <head>
@@ -32,13 +32,13 @@ s6(slides) ::= <<
 <div class="layout">
   <div id="header"></div>
   <div id="footer">
-    <h1>[your_footer_here]</h1>
-    <h2>[your_subfooter_here]</h2>
+    «first(slideshow.footer):{text|<h1>«text»</h1>}»
+    «rest(slideshow.footer):{text|<h2>«text»</h2>}»
   </div>
 </div>
 
 <div class="presentation">
-  «slides:slide()»
+  «slideshow.slides:slide()»
 </div> <!-- presentation -->
 </body>
 </html>
