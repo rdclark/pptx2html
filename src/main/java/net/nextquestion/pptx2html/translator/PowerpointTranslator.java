@@ -6,8 +6,10 @@ import net.nextquestion.pptx2html.model.Slide;
 import net.nextquestion.pptx2html.model.Slideshow;
 import net.nextquestion.pptx2html.parser.RELSParser;
 import net.nextquestion.pptx2html.parser.SlideParser;
-import org.antlr.runtime.CommonTokenStream;
-import org.antlr.runtime.RecognitionException;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.apache.commons.io.FileUtils;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
@@ -54,8 +56,8 @@ public class PowerpointTranslator {
      */
     PowerpointTranslator(File explodedPresentation) throws IOException {
         this.explodedPresentation = explodedPresentation;
-        slideTokenSource = new StaxTokenSource(new FileReader("target/generated-sources/antlr3/Slide.tokens"));
-        relsTokenSource = new StaxTokenSource(new FileReader("target/generated-sources/antlr3/RELS.tokens"));
+        slideTokenSource = new StaxTokenSource(new FileReader("target/generated-sources/antlr4/Slide.tokens"));
+        relsTokenSource = new StaxTokenSource(new FileReader("target/generated-sources/antlr4/RELS.tokens"));
     }
 
     public PowerpointTranslator(File presentation, File tempDirectory) throws IOException {
@@ -70,6 +72,7 @@ public class PowerpointTranslator {
             slideshow = new Slideshow();
             File slideFolder = new File(explodedPresentation, "ppt/slides");
             File relsFolder = new File(slideFolder, "_rels");
+            ParseTreeWalker walker = new ParseTreeWalker();
 
             int slideNum = 1;
             for (; ; ) {
@@ -80,13 +83,18 @@ public class PowerpointTranslator {
                 File relsFile = new File(relsFolder, slideFile.getName() + ".rels");
                 relsTokenSource.useReader(new FileReader(relsFile));
                 RELSParser relsParser = new RELSParser(new CommonTokenStream(relsTokenSource));
-                Map<String, Relationship> relationships = relsParser.relationships();
+                ParseTree relationshipsTree = relsParser.relationships();
+                RelationshipExtractor relationshipExtractor = new RelationshipExtractor();
+                walker.walk(relationshipExtractor, relationshipsTree);
+                Map<String, Relationship> relationships = relationshipExtractor.getRelationshipMap();
 
                 slideTokenSource.useReader(new FileReader(slideFile));
                 SlideParser slideParser = new SlideParser(new CommonTokenStream(slideTokenSource));
                 Slide slide = new Slide(slideFile);
                 slideshow.add(slide);
-                slideParser.slide(slide);
+                ParseTree slideTree = slideParser.slide();
+                SlideBuilder slideBuilder = new SlideBuilder(slide);
+                walker.walk(slideBuilder, slideTree);
                 slide.addRelationships(relationships);
                 slideNum++;
             }

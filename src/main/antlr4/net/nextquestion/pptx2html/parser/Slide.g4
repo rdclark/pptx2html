@@ -1,22 +1,7 @@
 grammar Slide;
 
-@header {
-package net.nextquestion.pptx2html.parser;
-
-import java.io.File;
-import net.nextquestion.pptx2html.model.Slide;
-
-}
-
-slide [Slide aSlide]
-scope {
-  Slide container;
-}
-@init {
-  $slide::container = $aSlide;
-}
-	:	SLD_START slideContainer SLD_END
-	;
+slide:	SLD_START slideContainer SLD_END
+	 ;
 
 slideContainer
 	:	CSLD_START shapeTree CSLD_END
@@ -31,46 +16,33 @@ shapeTreeContent
 	;
 	
 
-shape
-scope {
-  String shapeType;
-  List<String> strings;
-}
-@init {
-  $shape::strings = new ArrayList<String>();
-}
-	:	SP_START shapePlaceholder? textBody? SP_END
-		{ $slide::container.addText($shape::shapeType, $shape::strings); }
+shape:	SP_START shapePlaceholder? textBody? SP_END
 	;
 		
 shapePlaceholder 
 	:	NVSPPR_START NVPR_START PH_START
 		t=TYPE_ATTR?
 		PH_END NVPR_END NVSPPR_END
-		{ $shape::shapeType = ($t==null)?"":$t.text; }
 	;
 
 textBody:	TXBODY_START 
-			(p=paragraph { $shape::strings.add(p); })+ 
+			(p=paragraph)+
 		TXBODY_END
 	;
 
-paragraph returns [String result]
-@init {
-  StringBuffer buf = new StringBuffer();
-}
-	:	P_START 
-			(R_START 
-				RPR_START clean=SMTCLEAN_ATTR? RPR_END
-				// clean will exist and be "0" if we should use the text as is.
-				T_START (t=TEXT {if (clean==null) buf.append(' '); buf.append(t.getText()); clean = null;})* T_END 
-			R_END)*
-		P_END
-		{ $result = buf.toString().trim(); }
+paragraph:	P_START textRun* P_END
 	;
 
-textRun	:	
+textRun	:
+            R_START
+                RPR_START clean=SMTCLEAN_ATTR? RPR_END
+                // clean will exist and be "0" if we should use the text as is.
+                T_START textContent* T_END
+            R_END
 	;
+
+textContent: t=TEXT
+    ;
 
 picture	:	PIC_START pictureProperties? blip PIC_END
 	;
@@ -81,9 +53,7 @@ pictureProperties
 	;
 
 
-blip	:	BLIP_START ref=EMBED_ATTR BLIP_END
-		{ $slide::container.addImageRef($ref.getText()); }
-
+blip:	BLIP_START ref=EMBED_ATTR BLIP_END
 	;
 	
 BLIP_START 	: 'BLIP';

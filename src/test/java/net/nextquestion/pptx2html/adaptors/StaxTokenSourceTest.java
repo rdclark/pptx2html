@@ -1,6 +1,6 @@
 package net.nextquestion.pptx2html.adaptors;
 
-import org.antlr.runtime.Token;
+import org.antlr.v4.runtime.Token;
 import org.junit.Test;
 
 import javax.xml.stream.XMLStreamException;
@@ -8,10 +8,7 @@ import java.io.IOException;
 import java.io.StringReader;
 
 /**
- * Created by IntelliJ IDEA.
- * User: rdclark
- * Date: 4/12/11
- * Time: 22:10
+ * Verify the token source.
  */
 public class StaxTokenSourceTest {
 

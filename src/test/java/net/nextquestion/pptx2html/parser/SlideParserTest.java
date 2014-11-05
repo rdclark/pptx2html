@@ -1,9 +1,11 @@
 package net.nextquestion.pptx2html.parser;
 
 import net.nextquestion.pptx2html.model.Slide;
-import net.nextquestion.pptx2html.model.Slideshow;
-import org.antlr.runtime.RecognitionException;
-import org.antlr.runtime.TokenStream;
+import net.nextquestion.pptx2html.translator.SlideBuilder;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.TokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,10 +20,7 @@ import static org.hamcrest.Matchers.notNullValue;
 
 
 /**
- * Created by IntelliJ IDEA.
- * User: rdclark
- * Date: 4/12/11
- * Time: 23:19
+ * Check the slide parser against a set of known slide files.
  */
 public class SlideParserTest extends ParserTestUtilities {
 
@@ -53,10 +52,13 @@ public class SlideParserTest extends ParserTestUtilities {
     }
 
     protected Slide parseSlide(String fileName) throws IOException, XMLStreamException, RecognitionException {
-        TokenStream tokens = getTokenStream(fileName, "target/generated-sources/antlr3/Slide.tokens");
+        TokenStream tokens = getTokenStream(fileName, "target/generated-sources/antlr4/Slide.tokens");
         SlideParser parser = new SlideParser(tokens);
         Slide slide = new Slide(new File(fileName));
-        parser.slide(slide);
+        ParseTree tree = parser.slide();
+        SlideBuilder builder = new SlideBuilder(slide);
+        ParseTreeWalker walker = new ParseTreeWalker();
+        walker.walk(builder, tree);
         return slide;
     }
 

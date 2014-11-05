@@ -1,8 +1,11 @@
 package net.nextquestion.pptx2html.parser;
 
 import net.nextquestion.pptx2html.model.Relationship;
-import org.antlr.runtime.RecognitionException;
-import org.antlr.runtime.TokenStream;
+import net.nextquestion.pptx2html.translator.RelationshipExtractor;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.TokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,10 +18,7 @@ import static org.hamcrest.Matchers.equalTo;
 
 
 /**
- * Created by IntelliJ IDEA.
- * User: rdclark
- * Date: 4/12/11
- * Time: 23:19
+ * Validates the relationships file parser against a standard set of slide files.
  */
 public class RelsParserTest extends ParserTestUtilities {
 
@@ -27,9 +27,13 @@ public class RelsParserTest extends ParserTestUtilities {
 
     @Before
     public void parseTestFile() throws IOException, XMLStreamException, RecognitionException {
-        TokenStream tokens = getTokenStream("src/test/resources/slide3.xml.rels", "target/generated-sources/antlr3/RELS.tokens");
+        TokenStream tokens = getTokenStream("src/test/resources/slide3.xml.rels", "target/generated-sources/antlr4/RELS.tokens");
         RELSParser parser = new RELSParser(tokens);
-        map = parser.relationships();
+        ParseTree tree = parser.relationships();
+        RelationshipExtractor relationshipExtractor = new RelationshipExtractor();
+        ParseTreeWalker walker = new ParseTreeWalker();
+        walker.walk(relationshipExtractor, tree);
+        map = relationshipExtractor.getRelationshipMap();
         if (map != null && map.containsKey("rId1"))
             relationship = (Relationship) map.get("rId1");
     }

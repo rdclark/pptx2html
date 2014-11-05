@@ -1,8 +1,8 @@
 package net.nextquestion.pptx2html.adaptors;
 
-import org.antlr.runtime.ClassicToken;
-import org.antlr.runtime.Token;
-import org.antlr.runtime.TokenSource;
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.misc.NotNull;
+import org.antlr.v4.runtime.misc.Pair;
 
 import javax.xml.stream.*;
 import java.io.BufferedReader;
@@ -13,13 +13,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Bridge between StAX and ANTLR 3. Original design by Kunle Odata, modified by Richard Clark.
- * See http://www.antlr.org/wiki/display/ANTLR3/Interfacing+StAX+to+ANTLR
+ * Bridge between StAX and ANTLR 4. Original design by Kunle Odata for ANTLR 3, modified by Richard Clark.
+ * Original inspiration at http://www.antlr.org/wiki/display/ANTLR3/Interfacing+StAX+to+ANTLR
  *
  * @author rdclark
- *         <p/>
- *         Date: Jan 21, 2008
- *         Time: 11:27:51 PM
  */
 public class StaxTokenSource implements TokenSource {
 
@@ -34,11 +31,13 @@ public class StaxTokenSource implements TokenSource {
 
     /* Buffers multiple tokens (start, attributes..., stop) for a tag */
     private Queue<Token> tokens = new LinkedList<Token>();
+    private CommonTokenFactory tokenFactory;
 
 
     public StaxTokenSource(Reader tokenDefinitionsReader) throws IOException {
         factory = XMLInputFactory.newInstance();
         initMapping(tokenDefinitionsReader);
+        tokenFactory = new CommonTokenFactory();
     }
 
     /**
@@ -69,13 +68,33 @@ public class StaxTokenSource implements TokenSource {
             // do nothing, for now
         }
         if (tokens.isEmpty())
-            return new ClassicToken(Token.EOF_TOKEN);
+            return tokenFactory.create(Token.EOF, "");
         Token result = tokens.remove();
         return result;
     }
 
+    public int getLine() {
+        return 0;   // we don't track lines
+    }
+
+    public int getCharPositionInLine() {
+        return -1;  // we don't track character offsets
+    }
+
+    public CharStream getInputStream() {
+        return null; // no matching character stream
+    }
+
     public String getSourceName() {
         return "STaX Token Source";
+    }
+
+    public void setTokenFactory(@NotNull TokenFactory<?> tokenFactory) {
+        this.tokenFactory = (CommonTokenFactory) tokenFactory;
+    }
+
+    public TokenFactory<?> getTokenFactory() {
+        return tokenFactory;
     }
 
     /**
@@ -159,20 +178,17 @@ public class StaxTokenSource implements TokenSource {
 
 
     private Token makeToken(XMLStreamReader reader, String tokenName, String text, int channel) {
-        Token token;
+        CommonToken token;
+        final Pair<TokenSource, CharStream> source = new Pair<TokenSource, CharStream>(this, null);
+        final Location loc = reader.getLocation();
+        final int line = loc.getLineNumber();
+        final int col = loc.getColumnNumber();
         if (string2type.containsKey(tokenName)) {
-            token = new ClassicToken(string2type.get(tokenName));
-            token.setChannel(channel);
+            return tokenFactory.create(source, string2type.get(tokenName), text, channel, -1, -1, line, col);
         } else {
             // it's unknown, so create an "unknown" token and hide it from the parser
-            token = new ClassicToken(-1);
-            token.setChannel(Token.HIDDEN_CHANNEL);
+            return tokenFactory.create(source, Token.INVALID_TYPE, text, Token.HIDDEN_CHANNEL, -1, -1, line, col);
         }
-        token.setText(text);
-        Location loc = reader.getLocation();
-        token.setLine(loc.getLineNumber());
-        token.setCharPositionInLine(loc.getColumnNumber());
-        return token;
     }
 
     private Token makeElementToken(XMLStreamReader reader, String tag, String suffix, String text) {
